@@ -7,7 +7,10 @@ public class AndroidView {
 
     private String id;
     private String name;
+    private String className;
     private PsiElement xmlTarget;
+
+    private boolean mSelected;
 
     public AndroidView(@NotNull String id, @NotNull String className, PsiElement xmlTarget) {
         this.xmlTarget = xmlTarget;
@@ -19,6 +22,9 @@ public class AndroidView {
             String packageStr = s[0].substring(1, s[0].length());
             this.id = (packageStr + ".R.id." + s[1]);
         }
+
+        this.className = className;
+
         if (className.contains("."))
             this.name = className;
         else if ((className.equals("View")) || (className.equals("ViewGroup")))
@@ -29,6 +35,10 @@ public class AndroidView {
 
     public PsiElement getXmlTarget() {
         return xmlTarget;
+    }
+
+    public String getClassName() {
+        return className;
     }
 
     public String getId() {
@@ -48,5 +58,13 @@ public class AndroidView {
             fieldName.append(chars);
         }
         return fieldName.toString();
+    }
+
+    public boolean isSelected() {
+        return mSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        mSelected = selected;
     }
 }

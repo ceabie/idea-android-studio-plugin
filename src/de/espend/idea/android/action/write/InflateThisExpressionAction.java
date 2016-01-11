@@ -102,6 +102,7 @@ public class InflateThisExpressionAction extends BaseIntentionAction {
 
 
                 PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiStatement.getProject());
+
                 for (AndroidView v: androidViews) {
 
                     if(!fieldSet.contains(v.getFieldName())) {

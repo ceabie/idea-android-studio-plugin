@@ -10,9 +10,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiLiteralExpression;
-import icons.AndroidIcons;
+
 import org.jetbrains.android.intentions.AndroidAddStringResourceAction;
 import org.jetbrains.annotations.Nullable;
+
+import icons.AndroidIcons;
 
 public class ExtractStringAction extends DumbAwareAction {
 
