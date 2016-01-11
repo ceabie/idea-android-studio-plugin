@@ -13,9 +13,8 @@ public class FieldViewInflateViewAction extends AbstractInflateViewAction {
     public void generate(InflateViewAnnotator.InflateContainer inflateContainer, Editor editor, @NotNull PsiFile file) {
         PsiLocalVariable psiLocalVariable = inflateContainer.getPsiLocalVariable();
         PsiFile xmlFile = inflateContainer.getXmlFile();
-        InflateThisExpressionAction action = new InflateThisExpressionAction(psiLocalVariable, xmlFile);
 
-        action.invoke(file.getProject(), editor, file);
+        new InflateThisExpressionAction(psiLocalVariable, xmlFile).invoke(file.getProject(), editor, file);
     }
 
 }

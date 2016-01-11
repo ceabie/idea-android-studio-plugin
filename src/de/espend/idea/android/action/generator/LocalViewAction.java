@@ -13,9 +13,8 @@ public class LocalViewAction extends AbstractInflateViewAction {
     public void generate(InflateViewAnnotator.InflateContainer inflateContainer, Editor editor, @NotNull PsiFile file) {
         PsiLocalVariable psiLocalVariable = inflateContainer.getPsiLocalVariable();
         PsiFile xmlFile = inflateContainer.getXmlFile();
-        InflateLocalVariableAction action = new InflateLocalVariableAction(psiLocalVariable, xmlFile);
 
-        action.invoke(file.getProject(), editor, file);
+        new InflateLocalVariableAction(psiLocalVariable, xmlFile).invoke(file.getProject(), editor, file);
     }
 
 }

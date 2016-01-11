@@ -8,12 +8,12 @@ import java.awt.event.*;
 
 public class SelectViewDialog extends JDialog {
     private JPanel contentPane;
-    public JButton btnCopyCode;
+    public JButton btnGenerator;
     public JButton btnClose;
     public JButton btnAddRootView;
     public JCheckBox chbAddRootView;
     public JTextField textRootView;
-    public JTextArea textCode;
+//    public JTextArea textCode;
     public JCheckBox chbAddM;
     public JTable tableViews;
     public JButton btnSelectAll;
@@ -25,15 +25,15 @@ public class SelectViewDialog extends JDialog {
     public SelectViewDialog() {
         setContentPane(contentPane);
         setModal(true);
-//        getRootPane().setDefaultButton(btnCopyCode);
+//        getRootPane().setDefaultButton(btnGenerator);
         textRootView.setEnabled(false);
         btnAddRootView.setEnabled(false);
 
-        btnCopyCode.addActionListener(new ActionListener() {
+        btnGenerator.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (onClickListener != null) {
-                    onClickListener.onCopyCode();
+                    onClickListener.onGenerateCode();
                 }
                 onCancel();
             }
@@ -135,14 +135,14 @@ public class SelectViewDialog extends JDialog {
         }
     }
 
-    public void setTextCode(String codeStr) {
-        textCode.setText(codeStr);
-    }
+//    public void setTextCode(String codeStr) {
+//        textCode.setText(codeStr);
+//    }
 
     public interface onClickListener {
         void onAddRootView();
 
-        void onCopyCode();
+        void onGenerateCode();
 
         void onSelectAll();
 

@@ -1,49 +1,64 @@
 package de.espend.idea.android.action.write;
 
+import com.intellij.codeInsight.intention.impl.BaseIntentionAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.codeStyle.VariableKind;
+import de.espend.idea.android.AndroidView;
+import de.espend.idea.android.action.SelectViewDialog;
 
-import java.awt.Toolkit;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
 
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
-
-import de.espend.idea.android.AndroidView;
-import de.espend.idea.android.action.SelectViewDialog;
-
 /**
- * Created by Administrator on 2016/1/11.
+ * @author chenxi.
  */
-public class SelectView {
-    List<AndroidView> mAndroidViews;
+public abstract class AbstractIntentionAction extends BaseIntentionAction {
+
+    private List<AndroidView> mAndroidViews;
     private DefaultTableModel mTableModel;
-
     private SelectViewDialog mSelectViewDialog;
+    private String mPrefixVar;
+    private String mSuffixVar;
 
-    public void showSelectDialog(List<AndroidView> androidViews, AnActionEvent anActionEvent) {
+    protected abstract void generateCode(List<AndroidView> androidViews);
+
+    protected abstract VariableKind getVariableKind();
+
+    public void showSelectDialog(List<AndroidView> androidViews, Project project) {
         if (mSelectViewDialog == null) {
             mSelectViewDialog = new SelectViewDialog();
         }
 
+        JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(project);
+        VariableKind variableKind = getVariableKind();
+
+        mPrefixVar = codeStyleManager.getPrefixByVariableKind(variableKind);
+        mSuffixVar = codeStyleManager.getSuffixByVariableKind(variableKind);
+
         mAndroidViews = androidViews;
         updateTable();
-        mSelectViewDialog.setTitle("FindViewByMe");
+
+        mSelectViewDialog.setTitle("Select Views");
         mSelectViewDialog.setOnClickListener(onClickListener);
         mSelectViewDialog.pack();
-        mSelectViewDialog.setLocationRelativeTo(WindowManager.getInstance().getFrame(anActionEvent.getProject()));
+        mSelectViewDialog.setLocationRelativeTo(WindowManager.getInstance().getFrame(project));
         mSelectViewDialog.setVisible(true);
-
     }
 
     public void updateTable() {
         if (mAndroidViews == null || mAndroidViews.size() == 0) {
             return;
         }
+
         int size = mAndroidViews.size();
         String[] headers = {"selected", "type", "id", "name"};
         Object[][] cellData = new Object[size][4];
@@ -61,7 +76,7 @@ public class SelectView {
                         cellData[i][j] = viewPart.getId();
                         break;
                     case 3:
-                        cellData[i][j] = viewPart.getId();
+                        cellData[i][j] = viewPart.getFieldName();
                         break;
                 }
             }
@@ -89,7 +104,7 @@ public class SelectView {
                 if (column == 0) {
                     Boolean isSelected = (Boolean) mTableModel.getValueAt(row, column);
                     mAndroidViews.get(row).setSelected(isSelected);
-//                    FindViewByMeAction.this.generateCode();
+//                    generateCode(mAndroidViews);
                 }
             }
         });
@@ -109,10 +124,12 @@ public class SelectView {
         }
 
         @Override
-        public void onCopyCode() {
-            Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-            Transferable tText = new StringSelection(mSelectViewDialog.textCode.getText());
-            clip.setContents(tText, null);
+        public void onGenerateCode() {
+//            Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+//            Transferable tText = new StringSelection(mSelectViewDialog.textCode.getText());
+//            clip.setContents(tText, null);
+
+            generateCode(mAndroidViews);
         }
 
         @Override
