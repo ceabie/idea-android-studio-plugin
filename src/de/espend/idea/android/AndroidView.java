@@ -5,59 +5,73 @@ import org.jetbrains.annotations.NotNull;
 
 public class AndroidView {
 
-    private String id;
-    private String name;
-    private String className;
-    private PsiElement xmlTarget;
+    private String mResId;
+    private String mId;
+    private String mName;
+    private String mClassName;
+    private PsiElement mXmlTarget;
 
     private boolean mSelected;
+    private String mFiledName;
 
     public AndroidView(@NotNull String id, @NotNull String className, PsiElement xmlTarget) {
-        this.xmlTarget = xmlTarget;
+        mXmlTarget = xmlTarget;
 
         if (id.startsWith("@+id/")) {
-            this.id = ("R.id." + id.split("@\\+id/")[1]);
+            mId = id.substring("@+id/".length());
+            mResId = ("R.id." + mId);
         } else if (id.contains(":")) {
             String[] s = id.split(":id/");
             String packageStr = s[0].substring(1, s[0].length());
-            this.id = (packageStr + ".R.id." + s[1]);
+            mId = s[1];
+            mResId = (packageStr + ".R.id." + mId);
         }
 
-        this.className = className;
+        this.mClassName = className;
 
         if (className.contains("."))
-            this.name = className;
+            mName = className;
         else if ((className.equals("View")) || (className.equals("ViewGroup")))
-            this.name = String.format("android.view.%s", className);
+            mName = String.format("android.view.%s", className);
         else
-            this.name = String.format("android.widget.%s", className);
+            mName = String.format("android.widget.%s", className);
     }
 
     public PsiElement getXmlTarget() {
-        return xmlTarget;
+        return mXmlTarget;
     }
 
     public String getClassName() {
-        return className;
+        return mClassName;
     }
 
     public String getId() {
-        return this.id;
+        return mResId;
     }
 
     public String getName() {
-        return this.name;
+        return mName;
     }
 
     public String getFieldName() {
-        String[] words = getId().split("_");
-        StringBuilder fieldName = new StringBuilder();
-        for (String word : words) {
-            String[] idTokens = word.split("\\.");
-            char[] chars = idTokens[(idTokens.length - 1)].toCharArray();
-            fieldName.append(chars);
+        if (mFiledName == null) {
+            mFiledName = mId;
+            String[] words = mFiledName.split("_");
+            StringBuilder fieldName = new StringBuilder();
+            for (String word : words) {
+                if (word != null && word.length() > 0) {
+                    char[] ws = word.toCharArray();
+                    if (ws[0] >= 'a' && ws[0] <= 'z') {
+                        ws[0] += ('A' - 'a');
+                    }
+                    fieldName.append(ws);
+                }
+            }
+
+            mFiledName = fieldName.toString();
         }
-        return fieldName.toString();
+
+        return mFiledName;
     }
 
     public boolean isSelected() {

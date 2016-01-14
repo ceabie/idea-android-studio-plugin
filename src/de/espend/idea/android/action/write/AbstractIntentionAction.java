@@ -1,21 +1,21 @@
 package de.espend.idea.android.action.write;
 
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.codeStyle.SuggestedNameInfo;
 import com.intellij.psi.codeStyle.VariableKind;
 import de.espend.idea.android.AndroidView;
 import de.espend.idea.android.action.SelectViewDialog;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.util.List;
 
 /**
@@ -23,11 +23,28 @@ import java.util.List;
  */
 public abstract class AbstractIntentionAction extends BaseIntentionAction {
 
+    final protected PsiFile mXmlFile;
+    final protected PsiElement mPsiElement;
+    @Nullable
+    protected String mVariableName = null;
+
     private List<AndroidView> mAndroidViews;
     private DefaultTableModel mTableModel;
     private SelectViewDialog mSelectViewDialog;
     private String mPrefixVar;
     private String mSuffixVar;
+    private JavaCodeStyleManager mCodeStyleManager;
+
+    public AbstractIntentionAction(PsiLocalVariable psiLocalVariable, PsiFile xmlFile) {
+        this.mXmlFile = xmlFile;
+        this.mPsiElement = psiLocalVariable;
+        this.mVariableName = psiLocalVariable.getName();
+    }
+
+    public AbstractIntentionAction(PsiElement psiElement, PsiFile xmlFile) {
+        this.mXmlFile = xmlFile;
+        this.mPsiElement = psiElement;
+    }
 
     protected abstract void generateCode(List<AndroidView> androidViews);
 
@@ -38,13 +55,9 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
             mSelectViewDialog = new SelectViewDialog();
         }
 
-        JavaCodeStyleManager codeStyleManager = JavaCodeStyleManager.getInstance(project);
-        VariableKind variableKind = getVariableKind();
-
-        mPrefixVar = codeStyleManager.getPrefixByVariableKind(variableKind);
-        mSuffixVar = codeStyleManager.getSuffixByVariableKind(variableKind);
-
+        mCodeStyleManager = JavaCodeStyleManager.getInstance(project);
         mAndroidViews = androidViews;
+
         updateTable();
 
         mSelectViewDialog.setTitle("Select Views");
@@ -76,7 +89,12 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
                         cellData[i][j] = viewPart.getId();
                         break;
                     case 3:
-                        cellData[i][j] = viewPart.getFieldName();
+                        String name = viewPart.getFieldName();
+                        SuggestedNameInfo nameInfo = mCodeStyleManager.suggestVariableName(getVariableKind(), name, null, null);
+                        if (nameInfo != null) {
+                            name = nameInfo.names[0];
+                        }
+                        cellData[i][j] = name;
                         break;
                 }
             }
@@ -115,7 +133,7 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
     }
 
     /**
-     * FindViewByMe ∂‘ª∞øÚªÿµ˜
+     * FindViewByMe ÂØπËØùÊ°ÜÂõûË∞É
      */
     private SelectViewDialog.onClickListener onClickListener = new SelectViewDialog.onClickListener() {
         @Override

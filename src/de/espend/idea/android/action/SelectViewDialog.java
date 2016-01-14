@@ -14,7 +14,7 @@ public class SelectViewDialog extends JDialog {
     public JCheckBox chbAddRootView;
     public JTextField textRootView;
 //    public JTextArea textCode;
-    public JCheckBox chbAddM;
+//    public JCheckBox chbAddM;
     public JTable tableViews;
     public JButton btnSelectAll;
     public JButton btnSelectNone;
@@ -47,15 +47,15 @@ public class SelectViewDialog extends JDialog {
                 }
             }
         });
-
-        chbAddM.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (onClickListener != null) {
-                    onClickListener.onSwitchAddM(chbAddM.isSelected());
-                }
-            }
-        });
+//
+//        chbAddM.addChangeListener(new ChangeListener() {
+//            @Override
+//            public void stateChanged(ChangeEvent e) {
+//                if (onClickListener != null) {
+//                    onClickListener.onSwitchAddM(chbAddM.isSelected());
+//                }
+//            }
+//        });
         chbIsViewHolder.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {

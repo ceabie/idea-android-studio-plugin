@@ -12,7 +12,6 @@ import com.intellij.util.IncorrectOperationException;
 import de.espend.idea.android.AndroidView;
 import de.espend.idea.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,21 +19,12 @@ import java.util.Set;
 
 public class InflateLocalVariableAction extends AbstractIntentionAction {
 
-    final private PsiFile xmlFile;
-    final private PsiElement psiElement;
-
-    @Nullable
-    private String variableName = null;
-
     public InflateLocalVariableAction(PsiLocalVariable psiLocalVariable, PsiFile xmlFile) {
-        this.xmlFile = xmlFile;
-        this.psiElement = psiLocalVariable;
-        this.variableName = psiLocalVariable.getName();
+        super(psiLocalVariable, xmlFile);
     }
 
     public InflateLocalVariableAction(PsiElement psiElement, PsiFile xmlFile) {
-        this.xmlFile = xmlFile;
-        this.psiElement = psiElement;
+        super(psiElement, xmlFile);
     }
 
     @NotNull
@@ -53,7 +43,7 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
         DocumentUtil.writeInRunUndoTransparentAction(new Runnable() {
             @Override
             public void run() {
-                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(xmlFile);
+                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(mXmlFile);
                 showSelectDialog(androidViews, project);
             }
         });
@@ -71,7 +61,7 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
             return;
         }
 
-        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class);
+        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(mPsiElement, PsiStatement.class);
         if (psiStatement == null) {
             return;
         }
@@ -93,8 +83,8 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
             if (v.isSelected() && !variables.contains(v.getFieldName())) {
                 String sb1;
 
-                if (variableName != null) {
-                    sb1 = String.format("%s %s = (%s) %s.findViewById(%s);", v.getName(), v.getFieldName(), v.getName(), variableName, v.getId());
+                if (mVariableName != null) {
+                    sb1 = String.format("%s %s = (%s) %s.findViewById(%s);", v.getName(), v.getFieldName(), v.getName(), mVariableName, v.getId());
                 } else {
                     sb1 = String.format("%s %s = (%s) findViewById(%s);", v.getName(), v.getFieldName(), v.getName(), v.getId());
                 }
@@ -113,4 +103,5 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
     protected VariableKind getVariableKind() {
         return VariableKind.LOCAL_VARIABLE;
     }
+
 }

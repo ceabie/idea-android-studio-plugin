@@ -12,7 +12,6 @@ import com.intellij.util.IncorrectOperationException;
 import de.espend.idea.android.AndroidView;
 import de.espend.idea.android.utils.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,22 +19,14 @@ import java.util.Set;
 
 public class InflateThisExpressionAction extends AbstractIntentionAction {
 
-    final private PsiFile xmlFile;
-    final private PsiElement psiElement;
-
-    @Nullable
-    private String variableName = null;
     private Set<String> mThisSet;
 
     public InflateThisExpressionAction(PsiLocalVariable psiLocalVariable, PsiFile xmlFile) {
-        this.xmlFile = xmlFile;
-        this.psiElement = psiLocalVariable;
-        this.variableName = psiLocalVariable.getName();
+        super(psiLocalVariable, xmlFile);
     }
 
     public InflateThisExpressionAction(PsiElement psiElement, PsiFile xmlFile) {
-        this.xmlFile = xmlFile;
-        this.psiElement = psiElement;
+        super(psiElement, xmlFile);
     }
 
     @NotNull
@@ -55,9 +46,9 @@ public class InflateThisExpressionAction extends AbstractIntentionAction {
         DocumentUtil.writeInRunUndoTransparentAction(new Runnable() {
             @Override
             public void run() {
-                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(xmlFile);
+                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(mXmlFile);
 
-                PsiStatement psiStatement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class);
+                PsiStatement psiStatement = PsiTreeUtil.getParentOfType(mPsiElement, PsiStatement.class);
                 if(psiStatement == null) {
                     return;
                 }
@@ -106,7 +97,7 @@ public class InflateThisExpressionAction extends AbstractIntentionAction {
 
     @Override
     protected void generateCode(List<AndroidView> androidViews) {
-        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(psiElement, PsiStatement.class);
+        PsiStatement psiStatement = PsiTreeUtil.getParentOfType(mPsiElement, PsiStatement.class);
         if(psiStatement == null) {
             return;
         }
@@ -131,8 +122,8 @@ public class InflateThisExpressionAction extends AbstractIntentionAction {
             if(!mThisSet.contains(v.getFieldName())) {
 
                 String sb1;
-                if(variableName != null) {
-                    sb1 = String.format("this.%s = (%s) %s.findViewById(%s);", v.getFieldName(), v.getName(), variableName, v.getId());
+                if(mVariableName != null) {
+                    sb1 = String.format("this.%s = (%s) %s.findViewById(%s);", v.getFieldName(), v.getName(), mVariableName, v.getId());
                 } else {
                     sb1 = String.format("this.%s = (%s) findViewById(%s);", v.getFieldName(), v.getName(), v.getId());
                 }
