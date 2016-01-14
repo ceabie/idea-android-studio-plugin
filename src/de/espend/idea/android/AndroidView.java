@@ -29,12 +29,13 @@ public class AndroidView {
 
         this.mClassName = className;
 
-        if (className.contains("."))
+        if (className.contains(".")) {
             mName = className;
-        else if ((className.equals("View")) || (className.equals("ViewGroup")))
-            mName = String.format("android.view.%s", className);
-        else
-            mName = String.format("android.widget.%s", className);
+        } else if ((className.equals("View")) || (className.equals("ViewGroup"))) {
+            mName = "android.view." + className;
+        } else {
+            mName = "android.widget." + className;
+        }
     }
 
     public PsiElement getXmlTarget() {
@@ -56,19 +57,20 @@ public class AndroidView {
     public String getFieldName() {
         if (mFiledName == null) {
             mFiledName = mId;
-            String[] words = mFiledName.split("_");
-            StringBuilder fieldName = new StringBuilder();
-            for (String word : words) {
-                if (word != null && word.length() > 0) {
-                    char[] ws = word.toCharArray();
-                    if (ws[0] >= 'a' && ws[0] <= 'z') {
-                        ws[0] += ('A' - 'a');
+            if (mFiledName.contains("_")) {
+                String[] words = mFiledName.split("_");
+                StringBuilder fieldName = new StringBuilder();
+                for (String word : words) {
+                    if (word != null && word.length() > 0) {
+                        char[] ws = word.toCharArray();
+                        if (ws[0] >= 'a' && ws[0] <= 'z') {
+                            ws[0] += ('A' - 'a');
+                        }
+                        fieldName.append(ws);
                     }
-                    fieldName.append(ws);
                 }
+                mFiledName = fieldName.toString();
             }
-
-            mFiledName = fieldName.toString();
         }
 
         return mFiledName;
