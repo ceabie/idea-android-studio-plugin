@@ -10,9 +10,15 @@ public class AndroidView {
     private String mName;
     private String mClassName;
     private PsiElement mXmlTarget;
+    private boolean mIsView;
 
     private boolean mSelected;
     private String mFiledName;
+    private String mFiledNameOrg;
+
+    public boolean isView() {
+        return mIsView;
+    }
 
     public AndroidView(@NotNull String id, @NotNull String className, PsiElement xmlTarget) {
         mXmlTarget = xmlTarget;
@@ -31,10 +37,14 @@ public class AndroidView {
 
         if (className.contains(".")) {
             mName = className;
-        } else if ((className.equals("View")) || (className.equals("ViewGroup"))) {
-            mName = "android.view." + className;
         } else {
-            mName = "android.widget." + className;
+            mIsView = "View".equals(className);
+            if (mIsView || "ViewGroup".equals(className) || "SurfaceView".equals(className)
+                    || "ViewStub".equals(className) || "TextureView".equals(className)) {
+                mName = "android.view." + className;
+            } else {
+                mName = "android.widget." + className;
+            }
         }
     }
 
@@ -54,26 +64,38 @@ public class AndroidView {
         return mName;
     }
 
+    public void setFiledName(String filedName) {
+        mFiledName = filedName;
+    }
+
     public String getFieldName() {
-        if (mFiledName == null) {
-            mFiledName = mId;
-            if (mFiledName.contains("_")) {
-                String[] words = mFiledName.split("_");
-                StringBuilder fieldName = new StringBuilder();
-                for (String word : words) {
-                    if (word != null && word.length() > 0) {
-                        char[] ws = word.toCharArray();
-                        if (ws[0] >= 'a' && ws[0] <= 'z') {
-                            ws[0] += ('A' - 'a');
+        return mFiledName;
+    }
+
+    public String getFieldNameOrg() {
+        if (mFiledNameOrg == null) {
+            mFiledNameOrg = mId;
+            if (mFiledNameOrg.contains("_")) {
+                try {
+                    String[] words = mFiledNameOrg.split("_");
+                    StringBuilder fieldName = new StringBuilder();
+                    for (String word : words) {
+                        if (word != null && word.length() > 0) {
+                            char[] ws = word.toCharArray();
+                            if (ws[0] >= 'a' && ws[0] <= 'z') {
+                                ws[0] += ('A' - 'a');
+                            }
+                            fieldName.append(ws);
                         }
-                        fieldName.append(ws);
                     }
+                    mFiledNameOrg = fieldName.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                mFiledName = fieldName.toString();
             }
         }
 
-        return mFiledName;
+        return mFiledNameOrg;
     }
 
     public boolean isSelected() {

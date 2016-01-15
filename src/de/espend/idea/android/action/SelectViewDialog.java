@@ -47,15 +47,7 @@ public class SelectViewDialog extends JDialog {
                 }
             }
         });
-//
-//        chbAddM.addChangeListener(new ChangeListener() {
-//            @Override
-//            public void stateChanged(ChangeEvent e) {
-//                if (onClickListener != null) {
-//                    onClickListener.onSwitchAddM(chbAddM.isSelected());
-//                }
-//            }
-//        });
+
         chbIsViewHolder.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {

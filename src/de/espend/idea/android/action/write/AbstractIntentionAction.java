@@ -31,8 +31,6 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
     private List<AndroidView> mAndroidViews;
     private DefaultTableModel mTableModel;
     private SelectViewDialog mSelectViewDialog;
-    private String mPrefixVar;
-    private String mSuffixVar;
     private JavaCodeStyleManager mCodeStyleManager;
 
     public AbstractIntentionAction(PsiLocalVariable psiLocalVariable, PsiFile xmlFile) {
@@ -89,11 +87,13 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
                         cellData[i][j] = viewPart.getId();
                         break;
                     case 3:
-                        String name = viewPart.getFieldName();
+                        String name = viewPart.getFieldNameOrg();
                         SuggestedNameInfo nameInfo = mCodeStyleManager.suggestVariableName(getVariableKind(), name, null, null);
                         if (nameInfo != null) {
                             name = nameInfo.names[0];
                         }
+
+                        viewPart.setFiledName(name);
                         cellData[i][j] = name;
                         break;
                 }
@@ -122,18 +122,15 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
                 if (column == 0) {
                     Boolean isSelected = (Boolean) mTableModel.getValueAt(row, column);
                     mAndroidViews.get(row).setSelected(isSelected);
-//                    generateCode(mAndroidViews);
                 }
             }
         });
 
         mSelectViewDialog.setModel(mTableModel);
-
-//        generateCode();
     }
 
     /**
-     * FindViewByMe 对话框回调
+     * FindViewByMe 对话框回�?
      */
     private SelectViewDialog.onClickListener onClickListener = new SelectViewDialog.onClickListener() {
         @Override
@@ -143,10 +140,6 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
 
         @Override
         public void onGenerateCode() {
-//            Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-//            Transferable tText = new StringSelection(mSelectViewDialog.textCode.getText());
-//            clip.setContents(tText, null);
-
             generateCode(mAndroidViews);
         }
 

@@ -113,24 +113,26 @@ public class InflateThisExpressionAction extends AbstractIntentionAction {
         PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiStatement.getProject());
 
         for (AndroidView v: androidViews) {
-
-            if(!fieldSet.contains(v.getFieldName())) {
-                String sb = "private " + v.getName() + " " + v.getFieldName() + ";";
+            String fieldName = v.getFieldName();
+            if(!fieldSet.contains(fieldName)) {
+                String sb = "private " + v.getName() + " " + fieldName + ";";
                 psiClass.add(elementFactory.createFieldFromText(sb, psiClass));
             }
 
-            if(!mThisSet.contains(v.getFieldName())) {
-
+            if(!mThisSet.contains(fieldName)) {
                 String sb1;
-                if(mVariableName != null) {
-                    sb1 = String.format("this.%s = (%s) %s.findViewById(%s);", v.getFieldName(), v.getName(), mVariableName, v.getId());
-                } else {
-                    sb1 = String.format("this.%s = (%s) findViewById(%s);", v.getFieldName(), v.getName(), v.getId());
+                String castCls = "";
+                if (!v.isView()) {
+                    castCls = "(" + v.getName() + ") ";
                 }
 
+                if(mVariableName != null) {
+                    sb1 = String.format("this.%s = %s%s.findViewById(%s);", fieldName, castCls, mVariableName, v.getId());
+                } else {
+                    sb1 = String.format("this.%s = %sfindViewById(%s);", fieldName, castCls, v.getId());
+                }
 
                 PsiStatement statementFromText = elementFactory.createStatementFromText(sb1, null);
-
                 psiStatement.getParent().addAfter(statementFromText, psiStatement);
             }
 
