@@ -27,26 +27,9 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
         super(psiElement, xmlFile);
     }
 
-    @NotNull
-    @Override
-    public String getFamilyName() {
-        return "Android Studio Prettify";
-    }
-
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
         return true;
-    }
-
-    @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
-        DocumentUtil.writeInRunUndoTransparentAction(new Runnable() {
-            @Override
-            public void run() {
-                List<AndroidView> androidViews = AndroidUtils.getIDsFromXML(mXmlFile);
-                showSelectDialog(androidViews, project);
-            }
-        });
     }
 
     @NotNull
@@ -56,18 +39,24 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
     }
 
     @Override
-    protected void generateCode(List<AndroidView> androidViews) {
+    protected VariableKind getVariableKind() {
+        return VariableKind.LOCAL_VARIABLE;
+    }
+
+    @Override
+    protected PsiElement generateCode(List<AndroidView> androidViews) {
         if (androidViews == null || androidViews.size() == 0) {
-            return;
+            return null;
         }
 
         PsiStatement psiStatement = PsiTreeUtil.getParentOfType(mPsiElement, PsiStatement.class);
         if (psiStatement == null) {
-            return;
+            return null;
         }
 
-        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiStatement.getProject());
-        PsiElement[] localVariables = PsiTreeUtil.collectElements(psiStatement.getParent(), new PsiElementFilter() {
+        PsiElement psiParent = psiStatement.getParent();
+
+        PsiElement[] localVariables = PsiTreeUtil.collectElements(psiParent, new PsiElementFilter() {
             @Override
             public boolean isAccepted(PsiElement element) {
                 return element instanceof PsiLocalVariable;
@@ -79,9 +68,10 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
             variables.add(((PsiLocalVariable) localVariable).getName());
         }
 
+        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiStatement.getProject());
         for (AndroidView v : androidViews) {
             String fieldName = v.getFieldName();
-            if (v.isSelected() && !variables.contains(fieldName)) {
+            if (!variables.contains(fieldName)) {
                 String sb1;
 
                 String castCls = "";
@@ -96,18 +86,11 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
                 }
 
                 PsiStatement statementFromText = elementFactory.createStatementFromText(sb1, null);
-                psiStatement.getParent().addAfter(statementFromText, psiStatement);
+                psiParent.addAfter(statementFromText, psiStatement);
             }
         }
 
-        JavaCodeStyleManager.getInstance(psiStatement.getProject()).shortenClassReferences(psiStatement.getParent());
-        new ReformatAndOptimizeImportsProcessor(psiStatement.getProject(), psiStatement.getContainingFile(), true).run();
-
-    }
-
-    @Override
-    protected VariableKind getVariableKind() {
-        return VariableKind.LOCAL_VARIABLE;
+        return psiParent;
     }
 
 }

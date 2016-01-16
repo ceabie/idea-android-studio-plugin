@@ -3,6 +3,9 @@ package de.espend.idea.android;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class AndroidView {
 
     private String mResId;
@@ -12,28 +15,42 @@ public class AndroidView {
     private PsiElement mXmlTarget;
     private boolean mIsView;
 
-    private boolean mSelected;
+    private boolean mSelected = true;
     private String mFiledName;
-    private String mFiledNameOrg;
 
     public boolean isView() {
         return mIsView;
     }
 
+    // @android:id/ @+id/ @id/
+    private static Pattern IdPattern = Pattern.compile("@(([\\w.]*?):?|\\+)?id/(\\w+)");
+
     public AndroidView(@NotNull String id, @NotNull String className, PsiElement xmlTarget) {
         mXmlTarget = xmlTarget;
 
-        if (id.startsWith("@+id/")) {
-            mId = id.substring("@+id/".length());
-            mResId = ("R.id." + mId);
-        } else if (id.contains(":")) {
-            String[] s = id.split(":id/");
-            String packageStr = s[0].substring(1, s[0].length());
-            mId = s[1];
-            mResId = (packageStr + ".R.id." + mId);
-        }
+        Matcher matcher = IdPattern.matcher(id);
+        if (matcher.find()) {
+            String packageStr = matcher.group(2);
+            mId = matcher.group(3);
 
-        this.mClassName = className;
+            if (packageStr != null && packageStr.length() > 0) {
+                mResId = packageStr + ".R.id." + mId;
+            } else {
+                mResId = "R.id." + mId;
+            }
+        }
+//        if (id.startsWith("@+id/")) {
+//            mId = id.substring("@+id/".length());
+//            mResId = ("R.id." + mId);
+//        } else if (id.contains(":id/")) {
+//
+//            String[] s = id.split(":id/");
+//            String packageStr = s[0].substring(1, s[0].length());
+//            mId = s[1];
+//            mResId = (packageStr + ".R.id." + mId);
+//        }
+
+        mClassName = className;
 
         if (className.contains(".")) {
             mName = className;
@@ -72,30 +89,28 @@ public class AndroidView {
         return mFiledName;
     }
 
-    public String getFieldNameOrg() {
-        if (mFiledNameOrg == null) {
-            mFiledNameOrg = mId;
-            if (mFiledNameOrg.contains("_")) {
-                try {
-                    String[] words = mFiledNameOrg.split("_");
-                    StringBuilder fieldName = new StringBuilder();
-                    for (String word : words) {
-                        if (word != null && word.length() > 0) {
-                            char[] ws = word.toCharArray();
-                            if (ws[0] >= 'a' && ws[0] <= 'z') {
-                                ws[0] += ('A' - 'a');
-                            }
-                            fieldName.append(ws);
+    public String getFieldNameById() {
+        String filedNameById = mId;
+        if (filedNameById.contains("_")) {
+            try {
+                String[] words = filedNameById.split("_");
+                StringBuilder fieldName = new StringBuilder();
+                for (String word : words) {
+                    if (word != null && word.length() > 0) {
+                        char[] ws = word.toCharArray();
+                        if (ws[0] >= 'a' && ws[0] <= 'z') {
+                            ws[0] += ('A' - 'a');
                         }
+                        fieldName.append(ws);
                     }
-                    mFiledNameOrg = fieldName.toString();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+                filedNameById = fieldName.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        return mFiledNameOrg;
+        return filedNameById;
     }
 
     public boolean isSelected() {

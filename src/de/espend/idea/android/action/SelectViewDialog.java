@@ -10,11 +10,6 @@ public class SelectViewDialog extends JDialog {
     private JPanel contentPane;
     public JButton btnGenerator;
     public JButton btnClose;
-    public JButton btnAddRootView;
-    public JCheckBox chbAddRootView;
-    public JTextField textRootView;
-//    public JTextArea textCode;
-//    public JCheckBox chbAddM;
     public JTable tableViews;
     public JButton btnSelectAll;
     public JButton btnSelectNone;
@@ -25,9 +20,8 @@ public class SelectViewDialog extends JDialog {
     public SelectViewDialog() {
         setContentPane(contentPane);
         setModal(true);
-//        getRootPane().setDefaultButton(btnGenerator);
-        textRootView.setEnabled(false);
-        btnAddRootView.setEnabled(false);
+
+        tableViews.setRowHeight(26);
 
         btnGenerator.addActionListener(new ActionListener() {
             @Override
@@ -36,15 +30,6 @@ public class SelectViewDialog extends JDialog {
                     onClickListener.onGenerateCode();
                 }
                 onCancel();
-            }
-        });
-
-        btnAddRootView.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (onClickListener != null) {
-                    onClickListener.onAddRootView();
-                }
             }
         });
 
@@ -57,23 +42,13 @@ public class SelectViewDialog extends JDialog {
             }
         });
 
-        chbAddRootView.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                boolean isAdd = chbAddRootView.isSelected();
-                if (onClickListener != null) {
-                    onClickListener.onSwitchAddRootView(isAdd);
-                }
-                textRootView.setEnabled(isAdd);
-                btnAddRootView.setEnabled(isAdd);
-            }
-        });
         btnClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SelectViewDialog.this.onCancel();
             }
         });
+
         btnSelectAll.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -101,7 +76,6 @@ public class SelectViewDialog extends JDialog {
             }
         });
 
-
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -127,12 +101,7 @@ public class SelectViewDialog extends JDialog {
         }
     }
 
-//    public void setTextCode(String codeStr) {
-//        textCode.setText(codeStr);
-//    }
-
     public interface onClickListener {
-        void onAddRootView();
 
         void onGenerateCode();
 
@@ -141,10 +110,6 @@ public class SelectViewDialog extends JDialog {
         void onSelectNone();
 
         void onNegativeSelect();
-
-        void onSwitchAddRootView(boolean isAddRootView);
-
-        void onSwitchAddM(boolean addM);
 
         void onSwitchIsViewHolder(boolean isViewHolder);
 
@@ -158,9 +123,5 @@ public class SelectViewDialog extends JDialog {
     public void setModel(DefaultTableModel model) {
         tableViews.setModel(model);
         tableViews.getColumnModel().getColumn(0).setPreferredWidth(20);
-    }
-
-    public String getRootView() {
-        return textRootView.getText();
     }
 }
