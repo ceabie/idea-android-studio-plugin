@@ -27,11 +27,6 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
         super(psiElement, xmlFile);
     }
 
-    @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
-        return true;
-    }
-
     @NotNull
     @Override
     public String getText() {
@@ -55,18 +50,7 @@ public class InflateLocalVariableAction extends AbstractIntentionAction {
         }
 
         PsiElement psiParent = psiStatement.getParent();
-
-        PsiElement[] localVariables = PsiTreeUtil.collectElements(psiParent, new PsiElementFilter() {
-            @Override
-            public boolean isAccepted(PsiElement element) {
-                return element instanceof PsiLocalVariable;
-            }
-        });
-
-        Set<String> variables = new HashSet<String>();
-        for (PsiElement localVariable : localVariables) {
-            variables.add(((PsiLocalVariable) localVariable).getName());
-        }
+        Set<String> variables = getLocalVariables(psiParent);
 
         PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(psiStatement.getProject());
         for (AndroidView v : androidViews) {

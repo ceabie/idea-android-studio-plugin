@@ -85,7 +85,7 @@
             <constraints/>
             <properties>
               <autoCreateRowSorter value="false"/>
-              <autoResizeMode value="2"/>
+              <autoResizeMode value="1"/>
               <fillsViewportHeight value="true"/>
               <intercellSpacing width="1" height="1"/>
               <preferredSize width="150" height="32"/>

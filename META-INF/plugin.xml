@@ -1,13 +1,13 @@
 <idea-plugin version="2">
   <id>de.espend.idea.android</id>
-  <name>Android Studio Prettify</name>
-  <version>0.3.1</version>
-  <vendor email="daniel@espendiller.net" url="http://espend.de">espend</vendor>
+  <name>Android Studio Prettify Plus</name>
+  <version>0.3.2</version>
+  <vendor email="ceabie@gmail.com" url="http://espend.de">espend</vendor>
 
   <description><![CDATA[
-    <h1>Android Studio Prettify</h1>
+    <h1>Android Studio Prettify Plus</h1>
     <br/>
-    <a href="https://github.com/Haehnchen/idea-android-studio-plugin/issues">Issues</a>
+    <a href="https://github.com/ceabie/idea-android-studio-plugin/issues">Issues</a>
     <br/>
 
 <h2>Features</h2>

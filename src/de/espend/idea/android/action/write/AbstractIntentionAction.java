@@ -11,6 +11,8 @@ import com.intellij.psi.PsiLocalVariable;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.codeStyle.SuggestedNameInfo;
 import com.intellij.psi.codeStyle.VariableKind;
+import com.intellij.psi.util.PsiElementFilter;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.DocumentUtil;
 import com.intellij.util.IncorrectOperationException;
 import de.espend.idea.android.AndroidView;
@@ -22,8 +24,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author chenxi.
@@ -60,6 +64,11 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
     @Override
     public String getFamilyName() {
         return "Android Studio Prettify";
+    }
+
+    @Override
+    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
+        return true;
     }
 
     @Override
@@ -226,4 +235,21 @@ public abstract class AbstractIntentionAction extends BaseIntentionAction {
             mSelectViewDialog = null;
         }
     };
+
+    @NotNull
+    static Set<String> getLocalVariables(PsiElement psiParent) {
+        PsiElement[] localVariables = PsiTreeUtil.collectElements(psiParent, new PsiElementFilter() {
+            @Override
+            public boolean isAccepted(PsiElement element) {
+                return element instanceof PsiLocalVariable;
+            }
+        });
+
+        Set<String> variables = new HashSet<String>();
+        for (PsiElement localVariable : localVariables) {
+            variables.add(((PsiLocalVariable) localVariable).getName());
+        }
+
+        return variables;
+    }
 }
